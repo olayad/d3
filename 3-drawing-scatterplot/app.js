@@ -14,6 +14,8 @@ async function draw() {
 			right: 50
 		}
 	}
+	dimensions.ctrWidth = dimensions.width - dimensions.margin.left - dimensions.margin.right
+	dimensions.ctrHeight = dimensions.height - dimensions.margin.top - dimensions.margin.bottom
 
 	const xAccessor = (d) => d.currently.humidity
 	const yAccessor = (d) => d.currently.apparentTemperature
@@ -32,14 +34,28 @@ async function draw() {
 	ctr.append('circle')
 		.attr('r', 15)
 
+	// Scales
+	const xScale = d3.scaleLinear()
+		.domain(d3.extent(dataset, xAccessor))
+		.rangeRound([0, dimensions.ctrWidth])
+		.clamp(true)
+
+	// Scales
+	const yScale = d3.scaleLinear()
+		.domain(d3.extent(dataset, yAccessor))
+		.rangeRound([0, dimensions.ctrHeight])
+		.nice()
+		.clamp(true)
 
 	//Draw circles
 	ctr.selectAll('circle')
 		.data(dataset)
 		.join('circle')
-		.attr('cx', xAccessor)
-		.attr('cy', yAccessor)
+		.attr('cx', d => xScale(xAccessor(d)))
+		.attr('cy', d => yScale(yAccessor(d)))
+		.attr('r', 5)
 		.attr('fill', 'red')
+
 }
 
 
