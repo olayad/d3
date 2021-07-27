@@ -32,6 +32,15 @@ async function draw() {
       .range([0, dimensions.ctrWidth])
       .nice()
 
+  const bin = d3.bin()
+      .domain(xScale.domain())
+      .value(xAccessor)
+      .thresholds(10)
+
+  const newDataset = bin(dataset)
+
+  console.log({ original: dataset, new: newDataset})
+
   // Draw bars
   ctr.selectAll('rect')
       .data(dataset)
