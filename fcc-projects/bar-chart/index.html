@@ -5,7 +5,6 @@
           content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Document</title>
-    <script src="https://d3js.org/d3.v4.min.js"></script>
 </head>
 <body>
     <div class="main">
@@ -13,10 +12,62 @@
             <div id="title">Federal Reserve Economic Data</div>
             <div class="chart"></div>
         </div>
-
-<!--        <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>-->
     </div>
-    <script src="app.js"></script>
+
+    <!--        <script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>-->
+    <script src="https://d3js.org/d3.v4.min.js"></script>
+    <script>
+
+	    const url='https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/GDP-data.json';
+
+	    let dimensions = {
+		    width: 800,
+		    height: 400,
+		    margins: 70
+	    }
+
+	    dataset = [["1947-01-01", 200.0], ["1947-04-01", 246.3], ["1947-06-01", 247.1]]
+
+	    var parseDate = d3.timeParse("%Y-%m-%d")
+	    const xAccessor = (d) => d[0]
+	    const yAccessor = (d) => d[1]
+
+	    document.addEventListener('DOMContentLoaded', function(){
+
+		    const svg = d3.select('.chart')
+			    .append('svg')
+                    .attr('width', dimensions.width + dimensions.margins * 2)
+                    .attr('height', dimensions.height + dimensions.margins * 2)
+			    .append('g')
+                    .attr('transform', 'translate(' + dimensions.margins + ',' +  dimensions.margins + ')')
+
+            // X axis
+            var x = d3.scaleBand()
+                    .range([0, dimensions.width])
+                    .domain(dataset.map(function(d) {return xAccessor(d)}))
+                    .padding(0.2)
+            svg.append('g')
+                .attr('transform', 'translate(0,' + dimensions.height + ')')
+                .call(d3.axisBottom(x))
+                .selectAll('text')
+                    .attr('transform', 'translate(-10,0)rotate(-45)')
+                    .style('text-anchor', 'end')
+
+
+
+
+
+// 	const req = new XMLHttpRequest();
+// 	req.open("GET", url, true);
+// 	req.send();
+// 	req.onload = function(){
+// 		resp = JSON.parse(req.responseText);
+// 		// console.log(resp["data"])
+// 		console.log(resp)
+//
+// 	}
+	    });
+    </script>
 
 </body>
 </html>
