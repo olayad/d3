@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Scatterplot</title>
+    <style>
+        .dot {
+            fill: #68b3a2;
+            stroke: black;
+        }
+
+    </style>
+</head>
+<body>
+<div class="main">
+    <div class="container">
+        <div class="chart"></div>
+    </div>
+</div>
+
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+	const url='https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/cyclist-data.json'
+
+	let dimensions = {
+		width: 800,
+		height: 400,
+		margins: 70
+	}
+
+	const xAccessor = (d) => d.Year
+    const yAccessor = function(e){
+		const parsedTime = e.Time.split(':')
+		return new Date(2021, 9, 9, 0, parsedTime[0], parsedTime[1] )
+    }
+
+	d3.json(url, function(error, dataset) {
+    	if(error) throw error;
+
+    	// Process data
+        const positives = []
+        const negatives = []
+        dataset.forEach(function(e){
+        	if (e.Doping === ""){
+                negatives.push(e)
+            } else {
+                positives.push(e)
+            }
+        })
+
+		const svg = d3.select('.chart')
+		    .append('svg')
+		    .attr('width', dimensions.width + dimensions.margins * 2)
+		    .attr('height', dimensions.width + dimensions.margins * 2)
+		    .append('g')
+		    .attr('transform', 'translate(' + dimensions.margins + ',' + dimensions.margins + ')')
+
+		svg.append('text')
+            .attr('y', 0)
+            .attr('x', dimensions.width / 2)
+			.attr('id', 'title')
+			.text('Scatterplot')
+
+		// X Axis
+        // xExtent and xRange used to avoid dots overlapping on top of the Y axis
+        var xExtent = d3.extent(dataset, function(d) { return xAccessor(d)}),
+            xRange = xExtent[1] - xExtent[0]
+        var xScale = d3.scaleLinear()
+            .domain([xExtent[0] - (xRange * 0.05), xExtent[1] + (xRange * 0.05)])
+	        .range([0, dimensions.width])
+            .nice()
+        var xAxis = d3.axisBottom(xScale)
+            .tickFormat(d3.format('d'))
+	    svg.append('g')
+            .attr('transform', 'translate(0,' + dimensions.height + ')')
+            .attr('id', 'x-axis')
+            .call(xAxis)
+
+	    //Y Axis
+        var yScale = d3.scaleTime()
+            .domain(d3.extent(dataset, yAccessor))
+            .domain([d3.min(dataset, yAccessor), d3.max(dataset, yAccessor)])
+            .range([0, dimensions.height])
+            .nice()
+        var yAxis = d3.axisLeft(yScale)
+            .tickFormat(d3.timeFormat("%M:%S"))
+        svg.append('g')
+	        .attr('id', 'y-axis')
+            .call(yAxis)
+
+        // Add dots
+        svg.append('g')
+            .selectAll('.dot')
+            .data(positives)
+            .enter()
+            .append('circle')
+                .attr('class', 'dot')
+                .attr('cx', d => xScale(xAccessor(d)))
+                .attr('cy', d => yScale(yAccessor(d)))
+                .attr('r', 3.5)
+		svg.append('text')
+			.attr('x', dimensions.width - 10)
+			.attr('y', (1/3) * dimensions.height)
+            .attr('text-anchor', 'end')
+			.attr('id', 'title')
+			.text('Riders with doping allegations')
+            .style('font-size', '13px')
+        svg.append('rect')
+            .attr('x', dimensions.width )
+	        .attr('y', (1/3) * dimensions.height - 10)
+            .attr('fill', '#68b3a2')
+            .attr('stroke', 'black')
+            .attr('width', 10)
+            .attr('height', 10)
+
+	})
+</script>
+</body>
+</html>
