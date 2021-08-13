@@ -7,15 +7,15 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Scatterplot</title>
     <style>
-        .dot-positive {
+        .positive {
             fill: #68b3a2;
             stroke: black;
         }
-        .dot-negative {
+        .negative {
 	        fill: darkorange;
 	        stroke: black;
         }
-        div.tooltip {
+        #tooltip {
 	        position: absolute;
 	        /*text-align: center;*/
 	        /*width: 260px;*/
@@ -82,7 +82,7 @@
 		//Tooltip
 		var div = d3.select('body')
 			.append('div')
-			.attr('class', 'tooltip')
+			.attr('id', 'tooltip')
 			.style('opacity', 0)
         var tooltipMouseOver = function(d) {
         	div.transition()
@@ -131,51 +131,58 @@
             .call(yAxis)
 
         // Add dots
-        svg.append('g')
-            .selectAll('.dot-positive')
+        var dotsPositives = svg.append('g')
+            .attr('id', 'dots')
+        dotsPositives.selectAll('.dot')
             .data(positives)
             .enter().append('circle')
-                .attr('class', 'dot-positive')
+	        .attr('class', 'dot positive')
                 .attr('cx', d => xScale(xAccessor(d)))
                 .attr('cy', d => yScale(yAccessor(d)))
                 .attr('r', 3.5)
-                .on('mouseover', function(d){ tooltipMouseOver(d) })
+                .attr('data-xvalue', d => xAccessor(d))
+                .attr('data-yvalue', d => yAccessor(d))
+	        .on('mouseover', function(d){ tooltipMouseOver(d) })
                 .on('mouseout', function(d){ tooltipMouseOut(d) })
-        svg.append('g')
-            .selectAll('.dot-negative')
+        var dotNegatives = svg.append('g')
+            .attr('id', 'dots')
+        dotNegatives.selectAll('.dot')
             .data(negatives)
             .enter().append('circle')
-                .attr('class', 'dot-negative')
+                .attr('class', 'dot negative')
                 .attr('cx', d => xScale(xAccessor(d)))
                 .attr('cy', d => yScale(yAccessor(d)))
                 .attr('r', 3.5)
-                .on('mouseover', function(d){ tooltipMouseOver(d) })
+                .attr('data-xvalue', d => xAccessor(d))
+                .attr('data-yvalue', d => yAccessor(d))
+	        .on('mouseover', function(d){ tooltipMouseOver(d) })
                 .on('mouseout', function(d){ tooltipMouseOut(d) })
 
-        console.log(dataset)
 		// Legend
-		svg.append('text')
+        var legend = svg.append('g')
+            .attr('id', 'legend')
+        legend.append('text')
 			.attr('x', dimensions.width - 10)
 			.attr('y', (1/4) * dimensions.height)
 			.attr('text-anchor', 'end')
 			.attr('id', 'title')
 			.text('Riders without doping allegations')
 			.style('font-size', '13px')
-		svg.append('text')
+		legend.append('text')
 			.attr('x', dimensions.width - 10)
 			.attr('y', (1/3) * dimensions.height)
             .attr('text-anchor', 'end')
 			.attr('id', 'title')
 			.text('Riders with doping allegations')
             .style('font-size', '13px')
-        svg.append('rect')
+        legend.append('rect')
             .attr('x', dimensions.width )
 	        .attr('y', (1/3) * dimensions.height - 10)
             .attr('fill', '#68b3a2')
             .attr('stroke', 'black')
             .attr('width', 10)
             .attr('height', 10)
-		svg.append('rect')
+		legend.append('rect')
 			.attr('x', dimensions.width )
 			.attr('y', (1/4) * dimensions.height - 10)
 			.attr('fill', 'orange')
@@ -186,5 +193,6 @@
 
 	})
 </script>
+<script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>
 </body>
 </html>
