@@ -1,0 +1,94 @@
+<!doctype html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport"
+          content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Heatmap</title>
+</head>
+<body>
+
+<div class="main">
+    <div class="container">
+        <div id="title"></div>
+        <div id="chart"></div>
+    </div>
+</div>
+
+<!--<script src="https://cdn.freecodecamp.org/testable-projects-fcc/v1/bundle.js"></script>-->
+<script src="https://d3js.org/d3.v4.min.js"></script>
+<script>
+
+    const url='https://raw.githubusercontent.com/freeCodeCamp/ProjectReferenceData/master/global-temperature.json'
+    var margin = {
+		    top: 30,
+		    right: 30,
+		    bottom: 30,
+		    left: 90
+	    },
+    width = 920 - margin.left - margin.right,
+    height = 950 - margin.top - margin.bottom;
+
+    const xAccessor = (d) => d.year
+    const yAccessor = (d) => d.month
+    const months = ['January','February','March','April','May','June','July',
+	    'August','September','October','November','December']
+
+    document.addEventListener('DOMContentLoaded', function(){
+        d3.json(url, function(error, dataset) {
+            console.log(dataset)
+
+	        // Process Data
+	        var monthly = new Array(12)
+            for (var i = 0; i <= 12 ; i++){ monthly[i] = new Array() }
+	        dataset.monthlyVariance.forEach(function(e){
+	        	const temp = dataset.baseTemperature + e.variance
+	            monthly[e.month - 1].push({
+		            'year': e.year,
+                    'month': e.month,
+		            'variance': e.variance.toFixed(1),
+                    'temp': temp.toFixed(1)
+	            })
+            })
+
+            var svg = d3.select('#chart')
+                .append('svg')
+                    .attr('width', width + margin.left + margin.right)
+                    .attr('height', height + margin.top + margin.bottom)
+                .append('g')
+                    .attr('transform', 'translate(' + margin.left + ', ' + margin.top + ')')
+
+            console.log()
+            // Build X scale and axis
+            var xScale = d3.scaleBand()
+                .domain(monthly[0].map( d => xAccessor(d)))
+                .range([0, width])
+                .padding(0.01)
+            var xAxis = d3.axisBottom(xScale)
+                .tickValues(xScale.domain().filter(function(d, i) {
+                	return !(i % 10)
+                }))
+            svg.append('g')
+                .attr('id', 'x-axis')
+                .attr('transform', 'translate(0,' + height + ')')
+                .call(xAxis)
+
+            //Build Y scale and axis
+            // var yScale = d3.scaleBand()
+            //     .domain(months)
+            //     .range([0, width])
+            //     // .padding(0.001)
+            // var yAxis = d3.axisLeft(yScale)
+            //     // .tickSize(10,1)
+            // svg.append('g')
+            //     .attr('id', 'y-axis')
+            //     .call(yAxis)
+            //
+            //TODO: trying to fix appearance of y scale, maybe I should be using
+            // scale ordinal instead?
+        })
+    })
+</script>
+</body>
+</html>

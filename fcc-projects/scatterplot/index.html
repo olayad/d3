@@ -121,7 +121,6 @@
 	    //Y Axis
         var yScale = d3.scaleTime()
             .domain(d3.extent(dataset, yAccessor))
-            .domain([d3.min(dataset, yAccessor), d3.max(dataset, yAccessor)])
             .range([0, dimensions.height])
             .nice()
         var yAxis = d3.axisLeft(yScale)
