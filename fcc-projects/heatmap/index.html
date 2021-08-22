@@ -27,8 +27,8 @@
 		    bottom: 30,
 		    left: 90
 	    },
-    width = 920 - margin.left - margin.right,
-    height = 950 - margin.top - margin.bottom;
+    width = 1220 - margin.left - margin.right,
+    height = 650 - margin.top - margin.bottom;
 
     const xAccessor = (d) => d.year
     const yAccessor = (d) => d.month
@@ -40,11 +40,11 @@
             console.log(dataset)
 
 	        // Process Data
-	        var monthly = new Array(12)
-            for (var i = 0; i <= 12 ; i++){ monthly[i] = new Array() }
+	        var monthlyData = new Array(12)
+            for (var i = 0; i <= 12 ; i++){ monthlyData[i] = new Array() }
 	        dataset.monthlyVariance.forEach(function(e){
 	        	const temp = dataset.baseTemperature + e.variance
-	            monthly[e.month - 1].push({
+	            monthlyData[e.month - 1].push({
 		            'year': e.year,
                     'month': e.month,
 		            'variance': e.variance.toFixed(1),
@@ -62,8 +62,8 @@
             console.log()
             // Build X scale and axis
             var xScale = d3.scaleBand()
-                .domain(monthly[0].map( d => xAccessor(d)))
-                .range([0, width])
+                .domain(monthlyData[0].map( d => xAccessor(d)))
+                .range([ 0, width ])
                 .padding(0.01)
             var xAxis = d3.axisBottom(xScale)
                 .tickValues(xScale.domain().filter(function(d, i) {
@@ -75,18 +75,72 @@
                 .call(xAxis)
 
             //Build Y scale and axis
-            // var yScale = d3.scaleBand()
-            //     .domain(months)
-            //     .range([0, width])
-            //     // .padding(0.001)
-            // var yAxis = d3.axisLeft(yScale)
-            //     // .tickSize(10,1)
-            // svg.append('g')
-            //     .attr('id', 'y-axis')
-            //     .call(yAxis)
+            var yScale = d3.scaleBand()
+	            .range([ height, 0 ])
+                .domain(months.reverse())
+                .padding(0.05)
+            svg.append('g')
+                .call(d3.axisLeft(yScale).tickSize(0))
+
+            //Build color scale
+            var myColor = d3.scaleSequential()
+                .interpolator(d3.interpolateRdYlBu)
+                .domain([1,100])
+
+            //Create tooltip
+            var tooltip = d3.select('#chart')
+                .append('div')
+                .style('opacity', 0)
+                .attr('class', 'tooltip')
+                .style('background-color', 'white')
+                .style('border', 'solid')
+                .style('border-width', '2px')
+                .style('border-radius', '5px')
+                .style('padding', '5px')
+
+            // var mouseover = function(d) {
+            // 	tooltip
+            //         .style('opacity', 1)
+            //     d3.select(this)
+            //         .style('stroke', 'black')
+            //         .style('opacity', 1)
+            // }
+            // var mousemove = function(d) {
+            // 	tooltip
+            //         .html(d.temp)
+            //         .style('left', (d3.mouse(this)[0]+70) + 'px')
+            //         .style('top', (d3.mouse(this)[1]) + 'px')
+            // }
+            // var mouseleave = function(d) {
+            // 	tooltip
+            //         .style('opacity', 0)
+            //     d3.select(this)
+            //         .style('stroke', 'none')
+            //         .style('opacity', '0.8')
+            // }
             //
-            //TODO: trying to fix appearance of y scale, maybe I should be using
-            // scale ordinal instead?
+            //Squares
+            svg.selectAll()
+                .data(monthlyData[0])
+                .enter()
+                .append('rect')
+                .attr('x', d => xScale(xAccessor(d)) )
+	            .attr('y', d => yScale(yAccessor(d)) )
+                // .attr('rx', 4)
+                // .attr('ry', 4)
+                .attr('temp', d => d.temp)
+	            .attr('year', d => d.year)
+	            .attr('width', xScale.bandwidth() )
+                .attr('height', yScale.bandwidth() )
+                // .style('fill', d => myColor(d.temp))
+                // .style('stroke-width', 4)
+                // .style('stroke', 'none')
+                .style('opacity', 0.8)
+
+
+            //Todo: Trying to fix myColor
+
+
         })
     })
 </script>
